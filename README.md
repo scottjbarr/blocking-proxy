@@ -1,11 +1,18 @@
 # Blocking Proxy
 
-A little proxy that 404's a list of paths.
+A little proxy that 404's a list of resources.
 
-Any path not on the block list is forwarded to http://localhost:3000
+Any path not on the block list is forwarded to the backend.
 
 Listens on http://localhost:8080
 
+The exampe below blocks
+
+- all HTTP verbs to `/foo`
+- `PUT /moo.json`
+
 Usage
 
-   blocking-proxy  /some/url /foo.json
+    blocking-proxy -bind :8080 \
+                   -backend localhost:3000
+                   -blocked "*:/foo PUT:/moo.json"
