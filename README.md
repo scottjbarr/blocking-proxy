@@ -15,4 +15,5 @@ Usage
 
     blocking-proxy -bind :8080 \
                    -backend localhost:3000
-                   -blocked "*:/foo PUT:/moo.json"
+                   -block "*:/foo"
+                   -block PUT:/moo.json

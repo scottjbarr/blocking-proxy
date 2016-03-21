@@ -10,19 +10,32 @@ import (
 	"strings"
 )
 
+type arrayFlags []string
+
+func (af *arrayFlags) String() string {
+	return "" // fmt.Sprintf("%+v", af)
+}
+
+func (i *arrayFlags) Set(value string) error {
+	*i = append(*i, value)
+	return nil
+}
+
+type resource struct {
+	method string
+	path   string
+}
+
 var (
-	blocked []string
+	blocked []resource
 	bind    *string
 	backend *string
-	paths   *string
+	paths   arrayFlags
 )
 
 func init() {
 	bind = flag.String("bind", ":8080", "Front end address")
 	backend = flag.String("backend", "localhost:3000", "Backend address")
-	paths = flag.String("blocked",
-		"",
-		"method:path to block. e.g. \"GET:/foo *:/bar\"")
 
 	flag.Usage = func() {
 		flag.PrintDefaults()
@@ -32,22 +45,13 @@ func init() {
 }
 
 // isBlocked returns true if the path is in the list of blocked paths
-//
-// Each string in the []string blocked will be in the format
-// METHOD:/path. If the METHOD is "*" then all HTTP verbs are blocked
-// for that path.
 func isBlocked(r *http.Request) bool {
 	for _, b := range blocked {
-		parts := strings.Split(b, ":")
-		method := parts[0]
-		path := parts[1]
-
-		if r.URL.Path == path && (r.Method == method || method == "*") {
-			log.Printf("blocked %v %v matching rule %v %v",
+		if r.URL.Path == b.path && (r.Method == b.method || b.method == "*") {
+			log.Printf("blocked %v %v matching rule %+v",
 				r.Method,
 				r.URL.Path,
-				method,
-				path)
+				b)
 			return true
 		}
 
@@ -75,10 +79,22 @@ func handler(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	flag.Var(&paths, "block", "method:path to block. e.g. \"GET:/foo *:/bar\"")
 	flag.Parse()
+	fmt.Printf("paths = %v", paths)
 
 	// grab the blocked method:path pairs
-	blocked = strings.Split(*paths, " ")
+	for _, path := range paths {
+		fmt.Printf("path = %+v\n", path)
+		parts := strings.Split(path, ":")
+		block := resource{
+			method: parts[0],
+			path:   parts[1],
+		}
+		blocked = append(blocked, block)
+	}
+
+	log.Printf("block : %v", blocked)
 
 	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe(*bind, nil))
