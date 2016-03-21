@@ -81,11 +81,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func main() {
 	flag.Var(&paths, "block", "method:path to block. e.g. \"GET:/foo *:/bar\"")
 	flag.Parse()
-	fmt.Printf("paths = %v", paths)
 
 	// grab the blocked method:path pairs
 	for _, path := range paths {
-		fmt.Printf("path = %+v\n", path)
 		parts := strings.Split(path, ":")
 		block := resource{
 			method: parts[0],
@@ -94,7 +92,7 @@ func main() {
 		blocked = append(blocked, block)
 	}
 
-	log.Printf("block : %v", blocked)
+	log.Printf("blocked resources : %v", blocked)
 
 	http.HandleFunc("/", handler)
 	log.Fatal(http.ListenAndServe(*bind, nil))
