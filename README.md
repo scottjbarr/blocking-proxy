@@ -11,9 +11,12 @@ The exampe below blocks
 - all HTTP verbs to `/foo`
 - `PUT /moo.json`
 
+The proxy will also optionally `dump` request data.
+
 Usage
 
     blocking-proxy -bind :8080 \
-                   -backend localhost:3000
-                   -block "*:/foo"
-                   -block PUT:/moo.json
+                   -backend localhost:3000 \
+                   -block "*:/foo" \
+                   -block PUT:/moo.json \
+                   -dump true

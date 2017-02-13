@@ -13,11 +13,11 @@ import (
 type arrayFlags []string
 
 func (af *arrayFlags) String() string {
-	return "" // fmt.Sprintf("%+v", af)
+	return ""
 }
 
-func (i *arrayFlags) Set(value string) error {
-	*i = append(*i, value)
+func (af *arrayFlags) Set(value string) error {
+	*af = append(*af, value)
 	return nil
 }
 
@@ -27,15 +27,17 @@ type resource struct {
 }
 
 var (
-	blocked []resource
-	bind    *string
-	backend *string
-	paths   arrayFlags
+	blocked     []resource
+	bind        *string
+	backend     *string
+	paths       arrayFlags
+	dumpRequest *bool
 )
 
 func init() {
 	bind = flag.String("bind", ":8080", "Front end address")
 	backend = flag.String("backend", "localhost:3000", "Backend address")
+	dumpRequest = flag.Bool("dump", false, "Dump HTTP request data")
 
 	flag.Usage = func() {
 		flag.PrintDefaults()
@@ -65,6 +67,16 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	if isBlocked(r) {
 		w.WriteHeader(http.StatusNotFound)
 		return
+	}
+
+	if *dumpRequest == true {
+		dump, err := httputil.DumpRequest(r, true)
+		if err != nil {
+			fmt.Printf("DEUMP FAIL\n")
+			log.Fatal(err)
+		}
+
+		fmt.Printf("%s\n", dump)
 	}
 
 	// proxy the connection the backend
