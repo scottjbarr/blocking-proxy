@@ -15,8 +15,8 @@ The proxy will also optionally `dump` request data.
 
 Usage
 
-    blocking-proxy -bind :8080 \
-                   -backend localhost:3000 \
-                   -block "*:/foo" \
-                   -block PUT:/moo.json \
-                   -dump true
+    blockingproxy -bind :8080 \
+                  -backend localhost:3000 \
+                  -block "*:/foo" \
+                  -block PUT:/moo.json \
+                  -dump true
