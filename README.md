@@ -4,8 +4,6 @@ A little proxy that 404's a list of resources.
 
 Any path not on the block list is forwarded to the backend.
 
-Listens on http://localhost:8080
-
 The exampe below blocks
 
 - all HTTP verbs to `/foo`
