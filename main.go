@@ -63,12 +63,6 @@ func isBlocked(r *http.Request) bool {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	// 404 any blocked resources
-	if isBlocked(r) {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
 	if *dumpRequest == true {
 		dump, err := httputil.DumpRequest(r, true)
 		if err != nil {
@@ -77,6 +71,12 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		fmt.Printf("%s\n", dump)
+	}
+
+	// 404 any blocked resources
+	if isBlocked(r) {
+		w.WriteHeader(http.StatusNotFound)
+		return
 	}
 
 	// proxy the connection the backend
